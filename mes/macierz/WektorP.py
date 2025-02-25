@@ -61,7 +61,7 @@ def powierzchnie_bc(element: Element):
         list[int]: Lista 4 wartości określających warunki brzegowe na każdej ścianie
                   (0 - brak warunku brzegowego, >0 - warunek brzegowy)
     """
-    # Inicjalizacja tablic warunków brzegowych dla węzłów i powierzchni
+    # Initialization of arrays of boundary conditions for nodes and surfaces
     punkty_z_bc = [0,  # point 0 (First point in element ->  Bottom left)
                    0,  # point 1 (Node with MaxID - 1  ->  Bottom right)
                    0,  # point 2 (Node with MinID      ->  Top right)
@@ -72,7 +72,7 @@ def powierzchnie_bc(element: Element):
                          0,  # wall 2 (Between Node 2 and Node 3 ->  Top wall)
                          0]  # wall 3 (Between Node 3 and Node 0 -> Left wall)
 
-    # Sprawdzenie warunków brzegowych w węzłach
+    # Checking the boundary conditions in the nodes
     if element.connected_nodes[0].BC > 0:                        # point 0 bottom left
         punkty_z_bc[0] = element.connected_nodes[0].BC
 
@@ -85,8 +85,8 @@ def powierzchnie_bc(element: Element):
     if element.connected_nodes[3].BC > 0:                        # point 3
         punkty_z_bc[3] = element.connected_nodes[3].BC
 
-    # Identyfikacja powierzchni z warunkami brzegowymi
-    # Powierzchnia ma warunek brzegowy, jeśli oba jej węzły mają ten sam warunek
+    # Identifying surfaces with boundary conditions
+    # A surface has a boundary condition if both its nodes have the same condition
     if punkty_z_bc[0] > 0 and punkty_z_bc[0] == punkty_z_bc[1]:     # wall 0 *bottom* (node 0,1)
         powierzchnie_z_bc[0] = punkty_z_bc[0]
 
@@ -235,41 +235,27 @@ class MacierzHBC:
                     hbc[i][2] = N3(self.punkty_bc3[i].x, self.punkty_bc3[i].y)
                     hbc[i][3] = N4(self.punkty_bc3[i].x, self.punkty_bc3[i].y)
 
-            # print(f"\n=================== BOK {nr_boku} ======================== \n")
-            # Calculate the outer product of each row with itself transposed
             for row_index, row in enumerate(hbc):
                 multiplied_transposed = self.outer_product(row, row)
-
-                # print_matrix(hbc, f"Original hbc Matrix (bok {nr_boku})")
-                # print_matrix(multiplied_transposed, f"Step 1 - Outer Product (Row {row_index + 1})")
 
                 # Scale the outer product
                 for mt_row_index, mt_row in enumerate(multiplied_transposed):
                     for mt_value_index, mt_value in enumerate(mt_row):
                         scaled_value = conductivity * self.weights[row_index] * mt_value
-                        # print(f"Scaling: {conductivity} * {self.weights[row_index]} * {mt_value} = {scaled_value}")
                         multiplied_transposed[mt_row_index][mt_value_index] = scaled_value
-
-                # print_matrix(multiplied_transposed, f"Step 2 - Scaled Outer Product (Row {row_index + 1})")
 
                 # Accumulate scaled outer product in matrixHBC
                 for hbc_row_index, hbc_row in enumerate(matrixHBC):
                     for hbc_value_index, hbc_value in enumerate(hbc_row):
                         updated_value = matrixHBC[hbc_row_index][hbc_value_index] + \
                                         multiplied_transposed[hbc_row_index][hbc_value_index]
-                        # print(
-                        #     f"Accumulating in matrixHBC[{hbc_row_index}][{hbc_value_index}]: {matrixHBC[hbc_row_index][hbc_value_index]} + {multiplied_transposed[hbc_row_index][hbc_value_index]} = {updated_value}")
                         matrixHBC[hbc_row_index][hbc_value_index] = updated_value
 
-                # print_matrix(matrixHBC, f"Step 3 - Updated matrixHBC (Row {row_index + 1})")
-                # print("=" * 30)
 
             # Multiply matrixHBC by detJ after accumulation
             for hbc_row_index, hbc_row in enumerate(matrixHBC):
                 for hbc_value_index, hbc_value in enumerate(hbc_row):
                     matrixHBC[hbc_row_index][hbc_value_index] *= detJ
-
-            #print_matrix(matrixHBC, f"Final matrixHBC (After multiplying by detJ - {detJ})")
 
         return matrixHBC
 
@@ -289,8 +275,8 @@ class MacierzHBC:
 
 class WektorP:
     """
-    Klasa implementująca wektor obciążeń cieplnych {P} dla elementu skończonego.
-    Uwzględnia warunki brzegowe konwekcji na powierzchniach elementu.
+    Class implementing the vector of thermal loads {P} for a finite element.
+    Considers convective boundary conditions on the surfaces of the element.
     """
     
     def __init__(self, element, no_int_nodes, alfa, ambient_temp):
@@ -349,7 +335,7 @@ class WektorP:
 
     def print_p_vectors(self):
         """
-        Wyświetla wektory P dla wszystkich powierzchni elementu.
+        Displays the vectors P for all surfaces of the element.
         """
         for i in range(len(self.p_side_vectors)):
             print("Vector P", i+1)
@@ -360,7 +346,7 @@ class WektorP:
 
     def print_integration_points(self):
         """
-        Wyświetla punkty całkowania na wszystkich powierzchniach elementu.
+        Displays the integration points on all surfaces of the element.
         """
         print("Points on the Bottom Wall (bc0):")
         for point in self.punkty_bc0:
@@ -380,67 +366,63 @@ class WektorP:
 
     def calculate_surface(self, nr_boku):
         """
-        Oblicza wektor obciążeń cieplnych dla zadanej powierzchni elementu.
+        Calculates the vector of thermal loads for a given surface of the element.
         
         Args:
-            nr_boku (int): Numer powierzchni (0-3)
+            nr_boku (int): Number of the surface (0-3)
             
         Returns:
-            list[float]: Wektor obciążeń cieplnych dla danej powierzchni
+            list[float]: Vector of thermal loads for a given surface
         """
         n_funcs = [[0 for j in range(4)] for i in range(self.no_int_nodes)]
         p_vector = [0 for j in range(4)]
 
         if self.sciany_z_bc[nr_boku] > 0:
-            # Obliczenia dla każdej ściany elementu
-            if nr_boku == 0:  # Ściana dolna
-                # Obliczenie jakobianu dla danej powierzchni
+            # Calculations for each surface of the element
+            if nr_boku == 0:  # Bottom wall
+                # Calculation of the Jacobian for the given surface
                 detJ = calculate_distance(self.element.connected_nodes[0], 
                                        self.element.connected_nodes[1]) * 0.5
-                # Obliczenie funkcji kształtu w punktach całkowania
+                # Calculation of the shape functions at the integration points
                 for i in range(len(n_funcs)):
                     n_funcs[i][0] = N1(self.punkty_bc0[i].x, self.punkty_bc0[i].y)
                     n_funcs[i][1] = N2(self.punkty_bc0[i].x, self.punkty_bc0[i].y)
                     n_funcs[i][2] = N3(self.punkty_bc0[i].x, self.punkty_bc0[i].y)
                     n_funcs[i][3] = N4(self.punkty_bc0[i].x, self.punkty_bc0[i].y)
-                    #print(f"n_funcs[{i}] =", n_funcs[i])
 
             elif nr_boku == 1:
                 detJ = calculate_distance(self.element.connected_nodes[1], self.element.connected_nodes[2]) * 0.5
-                #print("DET J 1 - ", detJ)
+                # Calculation of the shape functions at the integration points
                 for i in range(len(n_funcs)):
                     n_funcs[i][0] = N1(self.punkty_bc1[i].x, self.punkty_bc1[i].y)
                     n_funcs[i][1] = N2(self.punkty_bc1[i].x, self.punkty_bc1[i].y)
                     n_funcs[i][2] = N3(self.punkty_bc1[i].x, self.punkty_bc1[i].y)
                     n_funcs[i][3] = N4(self.punkty_bc1[i].x, self.punkty_bc1[i].y)
-                    #print(f"n_funcs[{i}] =", n_funcs[i])
 
             elif nr_boku == 2:
                 detJ = calculate_distance(self.element.connected_nodes[2], self.element.connected_nodes[3]) * 0.5
-                #print("DET J 2 - ", detJ)
+                # Calculation of the shape functions at the integration points
                 for i in range(len(n_funcs)):
                     n_funcs[i][0] = N1(self.punkty_bc2[i].x, self.punkty_bc2[i].y)
                     n_funcs[i][1] = N2(self.punkty_bc2[i].x, self.punkty_bc2[i].y)
                     n_funcs[i][2] = N3(self.punkty_bc2[i].x, self.punkty_bc2[i].y)
                     n_funcs[i][3] = N4(self.punkty_bc2[i].x, self.punkty_bc2[i].y)
-                    #print(f"n_funcs[{i}] =", n_funcs[i])
 
             elif nr_boku == 3:
                 detJ = calculate_distance(self.element.connected_nodes[3], self.element.connected_nodes[0]) * 0.5
-                #print("DET J 3 - ", detJ)
+                # Calculation of the shape functions at the integration points
                 for i in range(len(n_funcs)):
                     n_funcs[i][0] = N1(self.punkty_bc3[i].x, self.punkty_bc3[i].y)
                     n_funcs[i][1] = N2(self.punkty_bc3[i].x, self.punkty_bc3[i].y)
                     n_funcs[i][2] = N3(self.punkty_bc3[i].x, self.punkty_bc3[i].y)
                     n_funcs[i][3] = N4(self.punkty_bc3[i].x, self.punkty_bc3[i].y)
-                    #print(f"n_funcs[{i}] =", n_funcs[i])
 
             for i in range(self.no_int_nodes):
                 for j in range(4):
                     temp = n_funcs[i][j] * self.weights[i] * self.ambient_temp
                     p_vector[j] += temp
 
-            # Uwzględnienie współczynnika konwekcji i jakobianu
+            # Consider the convective coefficient and Jacobian
             for i in range(4):
                 temp = p_vector[i] * self.alfa * detJ
                 p_vector[i] = temp
@@ -456,13 +438,3 @@ class WektorP:
         print("\nTotal P Vector:")
         for value in self.p_vector:
             print(f"{value:.3f}" if isinstance(value, (float, int)) else value, end="\t")
-
-
-# a = MacierzHBC(elem, no_integration_nodes, 25)
-# a.print_integration_points()
-# a.print_matrix_hbc()
-# a.print_total_matrix()
-
-# a = WektorP(elem, no_integration_nodes, 300, 1200)
-# a.print_p_vectors()
-# a.print_total_vector()

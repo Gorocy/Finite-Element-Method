@@ -3,40 +3,40 @@ import math
 
 class GaussianIntegral:
     """
-    Klasa implementująca całkowanie numeryczne metodą Gaussa.
-    Obsługuje całkowanie jedno- i dwuwymiarowe dla różnej liczby węzłów (1-5).
+    Class implementing numerical integration using the Gaussian method.
+    Handles one- and two-dimensional integration for different numbers of nodes (1-5).
     """
     
     def __init__(self, no_nodes):
         """
-        Inicjalizacja kwadratury Gaussa dla zadanej liczby węzłów.
+        Initialization of the Gaussian quadrature for a given number of nodes.
         
         Args:
-            no_nodes (int): Liczba węzłów całkowania (1-5)
+            no_nodes (int): Number of integration nodes (1-5)
             
         Raises:
-            ValueError: Gdy podana liczba węzłów nie jest obsługiwana (spoza zakresu 1-5)
+            ValueError: When the number of nodes is not supported (outside the range 1-5)
         """
         self.no_nodes = no_nodes
 
-        # Definicje węzłów i wag dla różnej liczby punktów całkowania
+        # Definitions of nodes and weights for different numbers of integration points
         if no_nodes == 1:
-            # Całkowanie jednopunktowe
-            self.nodes = [0]  # Węzeł w środku przedziału
-            self.weights = [2]  # Waga dla węzła
+            # One-point integration
+            self.nodes = [0]  # Node in the center of the interval
+            self.weights = [2]  # Weight for the node
 
         elif no_nodes == 2:
-            # Całkowanie dwupunktowe
-            self.nodes = [-(1 / math.sqrt(3)), 1 / math.sqrt(3)]  # Węzły symetryczne
-            self.weights = [1, 1]  # Równe wagi dla obu węzłów
+            # Two-point integration
+            self.nodes = [-(1 / math.sqrt(3)), 1 / math.sqrt(3)]  # Symmetric nodes
+            self.weights = [1, 1]  # Equal weights for both nodes
 
         elif no_nodes == 3:
-            # Całkowanie trzypunktowe
-            self.nodes = [-(math.sqrt(3 / 5)), 0, math.sqrt(3 / 5)]  # Węzły symetryczne + środek
-            self.weights = [5 / 9, 8 / 9, 5 / 9]  # Wagi dla węzłów
+            # Three-point integration
+            self.nodes = [-(math.sqrt(3 / 5)), 0, math.sqrt(3 / 5)]  # Symmetric nodes + center
+            self.weights = [5 / 9, 8 / 9, 5 / 9]  # Weights for the nodes
 
         elif no_nodes == 4:
-            # Całkowanie czteropunktowe
+            # Four-point integration
             self.nodes = [-(math.sqrt(3 / 7 + 2 / 7 * math.sqrt(6 / 5))),
                           -(math.sqrt(3 / 7 - 2 / 7 * math.sqrt(6 / 5))),
                           (math.sqrt(3 / 7 - 2 / 7 * math.sqrt(6 / 5))),
@@ -45,7 +45,7 @@ class GaussianIntegral:
                             (18 + math.sqrt(30)) / 36, (18 - math.sqrt(30)) / 36]
 
         elif no_nodes == 5:
-            # Całkowanie pięciopunktowe
+            # Five-point integration
             self.nodes = [-math.sqrt(5 + 2 * math.sqrt(10 / 7)) / 3,
                           -math.sqrt(5 - 2 * math.sqrt(10 / 7)) / 3,
                           0,
@@ -63,10 +63,10 @@ class GaussianIntegral:
 
     def integrate1d(self):
         """
-        Wykonuje całkowanie jednowymiarowe funkcji zdefiniowanej w functionX.
+        Performs one-dimensional integration of the function defined in functionX.
         
         Returns:
-            float: Wynik całkowania jednowymiarowego
+            float: Result of one-dimensional integration
         """
         result = 0
         for i in range(self.no_nodes):
@@ -76,11 +76,11 @@ class GaussianIntegral:
 
     def integrate2d(self):
         """
-        Wykonuje całkowanie dwuwymiarowe funkcji zdefiniowanej w functionXY.
-        Wykorzystuje iloczyn tensorowy węzłów i wag dla obu wymiarów.
+        Performs two-dimensional integration of the function defined in functionXY.
+        Uses the tensor product of nodes and weights for both dimensions.
         
         Returns:
-            float: Wynik całkowania dwuwymiarowego
+            float: Result of two-dimensional integration
         """
         result = 0
         for i in range(self.no_nodes):

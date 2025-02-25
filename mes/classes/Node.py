@@ -1,34 +1,34 @@
 class Node:
     """
-    Klasa reprezentująca węzeł w metodzie elementów skończonych (MES).
-    Przechowuje informacje o położeniu węzła oraz warunkach brzegowych.
+    Class representing a node in the finite element method (FEM).
+    Stores information about the node's position and boundary conditions.
     """
     
     def __init__(self, node_id, x, y, bc = 0):
         """
-        Inicjalizacja węzła.
+        Initializes the node.
         
         Args:
-            node_id (int): Unikalny identyfikator węzła
-            x (float): Współrzędna X węzła w układzie kartezjańskim
-            y (float): Współrzędna Y węzła w układzie kartezjańskim
-            bc (int, optional): Warunek brzegowy (boundary condition).
-                              0 oznacza brak warunku brzegowego,
-                              wartość > 0 oznacza węzeł z warunkiem brzegowym
+            node_id (int): Unique identifier of the node
+            x (float): X coordinate of the node in the Cartesian coordinate system
+            y (float): Y coordinate of the node in the Cartesian coordinate system
+            bc (int, optional): Boundary condition.
+                              0 means no boundary condition,
+                              value > 0 means node with boundary condition
         """
         self.node_id = node_id
         self.x = x
         self.y = y
-        self.BC = bc  # Warunek brzegowy (Boundary Condition)
+        self.BC = bc  # Boundary Condition
 
     def printNode(self):
         """
-        Wyświetla informacje o węźle, w tym jego identyfikator, 
-        współrzędne oraz informację o warunku brzegowym.
+        Displays information about the node, including its identifier, 
+        coordinates, and information about the boundary condition.
         
-        Format wyświetlania:
-        - Dla węzłów z warunkiem brzegowym: "BC {wartość}"
-        - Dla węzłów bez warunku brzegowego: "Without BC"
+        Format display:
+        - For nodes with boundary condition: "BC {value}"
+        - For nodes without boundary condition: "Without BC"
         """
         bc_info = f"BC {self.BC}" if self.BC > 0 else "Without BC"
         print(f"NodeID: {self.node_id}, x: {self.x}, y: {self.y}, {bc_info}")

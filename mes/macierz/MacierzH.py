@@ -3,13 +3,13 @@ from mes.macierz.UniversalElement import UniversalElement
 from mes.classes.Element import Element
 from tabulate import tabulate
 
-no_integration_nodes = 4  # Liczba węzłów całkowania
+no_integration_nodes = 4  # Number of integration nodes
 
-# Definicja testowego elementu skończonego
-n1 = Node(1, 0.1, 0.005)        # Węzeł 1
-n2 = Node(2, 0.0546918, 0.005)  # Węzeł 2
-n3 = Node(6, 0.0623899, -0.0326101)  # Węzeł 3
-n4 = Node(5, 0.1, -0.0403082)   # Węzeł 4
+# Definition of the test finite element
+n1 = Node(1, 0.1, 0.005)        # Node 1
+n2 = Node(2, 0.0546918, 0.005)  # Node 2
+n3 = Node(6, 0.0623899, -0.0326101)  # Node 3
+n4 = Node(5, 0.1, -0.0403082)   # Node 4
 elem = Element(1)
 elem.addNode(n1)
 elem.addNode(n2)
@@ -17,20 +17,20 @@ elem.addNode(n3)
 elem.addNode(n4)
 
 _universal = UniversalElement(no_integration_nodes)
-ksi = _universal.ksi_derivatives  # Pochodne funkcji kształtu względem ksi
-eta = _universal.eta_derivatives  # Pochodne funkcji kształtu względem eta
+ksi = _universal.ksi_derivatives  # Derivatives of the shape functions with respect to ksi
+eta = _universal.eta_derivatives  # Derivatives of the shape functions with respect to eta
 
 def dx_dksi(element: Element, no_nodes, integration_point):
     """
-    Oblicza pochodną współrzędnej x względem ksi.
+    Calculates the derivative of the x coordinate with respect to ksi.
     
     Args:
-        element (Element): Element skończony
-        no_nodes (int): Liczba węzłów całkowania
-        integration_point (int): Numer punktu całkowania
+        element (Element): Finite element
+        no_nodes (int): Number of integration nodes
+        integration_point (int): Integration point number
         
     Returns:
-        float: Wartość pochodnej dx/dksi
+        float: Value of the derivative dx/dksi
     """
     temp = UniversalElement(no_nodes)
     result = 0
@@ -42,7 +42,14 @@ def dx_dksi(element: Element, no_nodes, integration_point):
 
 # Analogiczne funkcje dla pozostałych pochodnych
 def dy_dksi(element: Element, no_nodes, integration_point):
-    """Oblicza pochodną współrzędnej y względem ksi"""
+    """
+    Calculates the derivative of the y coordinate with respect to ksi.
+    
+    Args:
+        element (Element): Finite element
+        no_nodes (int): Number of integration nodes
+        integration_point (int): Integration point number
+    """
     temp = UniversalElement(no_nodes)
     result = 0
     for i in range(len(element.connected_nodes)):
@@ -51,7 +58,14 @@ def dy_dksi(element: Element, no_nodes, integration_point):
     return result
 
 def dx_deta(element: Element, no_nodes, integration_point):
-    """Oblicza pochodną współrzędnej x względem eta"""
+    """
+    Calculates the derivative of the x coordinate with respect to eta.
+    
+    Args:
+        element (Element): Finite element
+        no_nodes (int): Number of integration nodes
+        integration_point (int): Integration point number
+    """
     temp = UniversalElement(no_nodes)
     result = 0
     for i in range(len(element.connected_nodes)):
@@ -60,7 +74,14 @@ def dx_deta(element: Element, no_nodes, integration_point):
     return result
 
 def dy_deta(element: Element, no_nodes, integration_point):
-    """Oblicza pochodną współrzędnej y względem eta"""
+    """
+    Calculates the derivative of the y coordinate with respect to eta.
+    
+    Args:
+        element (Element): Finite element
+        no_nodes (int): Number of integration nodes
+        integration_point (int): Integration point number
+    """
     temp = UniversalElement(no_nodes)
     result = 0
     for i in range(len(element.connected_nodes)):
@@ -71,27 +92,27 @@ def dy_deta(element: Element, no_nodes, integration_point):
 
 class JacobianMatrix:
     """
-    Klasa implementująca macierz Jacobiego dla transformacji współrzędnych.
+    Class implementing the Jacobian matrix for coordinate transformation.
     """
     
     def __init__(self, element: Element, no_nodes, integration_point):
         """
-        Inicjalizacja i obliczenie macierzy Jacobiego.
+        Initialization and calculation of the Jacobian matrix.
         
         Args:
-            element (Element): Element skończony
-            no_nodes (int): Liczba węzłów całkowania
-            integration_point (int): Numer punktu całkowania
+            element (Element): Finite element
+            no_nodes (int): Number of integration nodes
+            integration_point (int): Integration point number
         """
         self.matrix = [[0, 0], [0, 0]]
         
-        # Obliczenie elementów macierzy Jacobiego
+        # Calculation of the elements of the Jacobian matrix
         self.matrix[0][0] = dx_dksi(element, no_nodes, integration_point)
         self.matrix[0][1] = dx_deta(element, no_nodes, integration_point)
         self.matrix[1][0] = dy_dksi(element, no_nodes, integration_point)
         self.matrix[1][1] = dy_deta(element, no_nodes, integration_point)
 
-        # Obliczenie wyznacznika i jego odwrotności
+        # Calculation of the determinant and its inverse
         self.detJ = self.matrix[0][0] * self.matrix[1][1] - self.matrix[0][1] * self.matrix[1][0]
         self.inverse_detJ = 1 / self.detJ
 
@@ -126,16 +147,16 @@ class JacobianMatrix:
 
 class dNi_dX:
     """
-    Klasa obliczająca pochodne funkcji kształtu względem x.
+    Class calculating the derivatives of the shape functions with respect to x.
     """
     
     def __init__(self, element, no_nodes):
         """
-        Inicjalizacja i obliczenie pochodnych dN/dx.
+        Initialization and calculation of the derivatives of the shape functions with respect to x.
         
         Args:
-            element (Element): Element skończony
-            no_nodes (int): Liczba węzłów całkowania
+            element (Element): Finite element
+            no_nodes (int): Number of integration nodes
         """
         self.no_nodes = no_nodes
 
@@ -183,16 +204,16 @@ class dNi_dX:
 
 class dNi_dY:
     """
-    Klasa obliczająca pochodne funkcji kształtu względem y.
+    Class calculating the derivatives of the shape functions with respect to y.
     """
     
     def __init__(self, element, no_nodes):
         """
-        Inicjalizacja i obliczenie pochodnych dN/dy.
+        Initialization and calculation of the derivatives of the shape functions with respect to y.
         
         Args:
-            element (Element): Element skończony
-            no_nodes (int): Liczba węzłów całkowania
+            element (Element): Finite element
+            no_nodes (int): Number of integration nodes
         """
         self.no_nodes = no_nodes
 
@@ -251,17 +272,17 @@ class dNi_dY:
 
 class TransposedMatrix:
     """
-    Klasa implementująca macierz transponowaną i operacje na niej.
+    Class implementing the transposed matrix and operations on it.
     """
     
     def __init__(self, elem_, no_nodes, k_value):
         """
-        Inicjalizacja i obliczenie macierzy transponowanej.
+        Initialization and calculation of the transposed matrix.
         
         Args:
-            elem_ (Element): Element skończony
-            no_nodes (int): Liczba węzłów całkowania
-            k_value (float): Współczynnik przewodzenia ciepła
+            elem_ (Element): Finite element
+            no_nodes (int): Number of integration nodes
+            k_value (float): Thermal conductivity coefficient
         """
         self.temp_dx = dNi_dX(elem_, no_nodes)
         self.temp_dy = dNi_dY(elem_, no_nodes)
@@ -347,17 +368,17 @@ class TransposedMatrix:
 
 class MatrixH:
     """
-    Klasa implementująca macierz H (przewodzenia ciepła).
+    Class implementing the matrix H (heat conduction).
     """
     
     def __init__(self, _elem, no_nodes, k):
         """
-        Inicjalizacja i obliczenie macierzy H.
+        Initialization and calculation of the matrix H.
         
         Args:
-            _elem (Element): Element skończony
-            no_nodes (int): Liczba węzłów całkowania
-            k (float): Współczynnik przewodzenia ciepła
+            _elem (Element): Finite element
+            no_nodes (int): Number of integration nodes
+            k (float): Thermal conductivity coefficient
         """
         self.element = _elem
         self.matrices = TransposedMatrix(_elem, no_nodes, k)
@@ -408,13 +429,13 @@ class MatrixH:
 
     def add_hbc_matrix(self, hbc_matrix):
         """
-        Dodaje macierz warunków brzegowych konwekcji do macierzy H.
+        Adds the matrix of convective boundary conditions to the matrix H.
         
         Args:
-            hbc_matrix (list[list[float]]): Macierz warunków brzegowych 4x4
+            hbc_matrix (list[list[float]]): Matrix of convective boundary conditions 4x4
             
         Raises:
-            ValueError: Gdy wymiary macierzy są nieprawidłowe
+            ValueError: When the dimensions of the matrix are incorrect
         """
         if len(hbc_matrix) != 4 or any(len(row) != 4 for row in hbc_matrix):
             raise ValueError("The provided matrix should be a 4x4 matrix")

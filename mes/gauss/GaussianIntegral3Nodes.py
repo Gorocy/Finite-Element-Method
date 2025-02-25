@@ -3,27 +3,27 @@ import math
 
 class GaussianIntegral3Nodes:
     """
-    Klasa implementująca trzypunktową kwadraturę Gaussa.
-    Specjalizowana wersja dla dokładnie trzech węzłów całkowania,
-    używana do całkowania jedno- i dwuwymiarowego.
+    Class implementing three-point Gaussian quadrature.
+    Specialized version for exactly three integration nodes,
+    used for one- and two-dimensional integration.
     """
     
     def __init__(self):
         """
-        Inicjalizacja trzypunktowej kwadratury Gaussa.
-        Węzły są symetryczne względem środka przedziału [-1,1] plus węzeł centralny.
-        Wagi są symetryczne dla węzłów bocznych (5/9) i większa dla węzła centralnego (8/9).
+        Initialization of three-point Gaussian quadrature.
+        Nodes are symmetric with respect to the center of the interval [-1,1] plus the central node.
+        Weights are symmetric for the side nodes (5/9) and larger for the central node (8/9).
         """
-        self.nodes = [-(math.sqrt(3/5)), 0, math.sqrt(3/5)]  # Węzły Gaussa dla n=3
-        self.weights = [5/9, 8/9, 5/9]  # Wagi dla węzłów: lewy, środkowy, prawy
+        self.nodes = [-(math.sqrt(3/5)), 0, math.sqrt(3/5)]  # Gauss nodes for n=3
+        self.weights = [5/9, 8/9, 5/9]  # Weights for nodes: left, central, right
 
     def integrate1d(self):
         """
-        Wykonuje całkowanie jednowymiarowe funkcji zdefiniowanej w functionX
-        używając trzypunktowej kwadratury Gaussa.
+        Performs one-dimensional integration of the function defined in functionX
+        using three-point Gaussian quadrature.
         
         Returns:
-            float: Wynik całkowania jednowymiarowego
+            float: Result of one-dimensional integration
         """
         result = 0
         for i in range(3):
@@ -33,12 +33,12 @@ class GaussianIntegral3Nodes:
 
     def integrate2d(self):
         """
-        Wykonuje całkowanie dwuwymiarowe funkcji zdefiniowanej w functionXY
-        używając trzypunktowej kwadratury Gaussa w obu wymiarach.
-        Wykorzystuje iloczyn tensorowy węzłów i wag, dając 9 punktów całkowania.
+        Performs two-dimensional integration of the function defined in functionXY
+        using three-point Gaussian quadrature in both dimensions.
+        Uses the tensor product of nodes and weights, giving 9 integration points.
         
         Returns:
-            float: Wynik całkowania dwuwymiarowego
+            float: Result of two-dimensional integration
         """
         result = 0
         for i in range(3):

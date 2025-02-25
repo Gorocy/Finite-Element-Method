@@ -1,25 +1,25 @@
 class Global:
     """
-    Klasa przechowująca globalne parametry symulacji metody elementów skończonych (MES).
-    Zawiera wszystkie stałe fizyczne i parametry czasowe potrzebne do obliczeń.
+    Class storing global parameters of the finite element method (FEM) simulation.
+    Contains all constant physical properties and time parameters needed for calculations.
     """
     
     def __init__(self, simTime, simStepTime, conductivity, alfa, tot, initialTemp, 
                  density, specificHeat, nodesNo, elementsNo):
         """
-        Inicjalizacja parametrów globalnych symulacji.
+        Initializes the global parameters of the simulation.
         
         Args:
-            simTime (float): Całkowity czas symulacji [s]
-            simStepTime (float): Krok czasowy symulacji [s]
-            conductivity (float): Współczynnik przewodzenia ciepła [W/(m·K)]
-            alfa (float): Współczynnik wymiany ciepła [W/(m²·K)]
-            tot (float): Temperatura otoczenia [°C]
-            initialTemp (float): Temperatura początkowa [°C]
-            density (float): Gęstość materiału [kg/m³]
-            specificHeat (float): Ciepło właściwe materiału [J/(kg·K)]
-            nodesNo (int): Liczba węzłów w siatce
-            elementsNo (int): Liczba elementów w siatce
+            simTime (float): Total simulation time [s]
+            simStepTime (float): Simulation time step [s]
+            conductivity (float): Heat conductivity coefficient [W/(m·K)]
+            alfa (float): Heat exchange coefficient [W/(m²·K)]
+            tot (float): Ambient temperature [°C]
+            initialTemp (float): Initial temperature [°C]
+            density (float): Material density [kg/m³]
+            specificHeat (float): Material specific heat [J/(kg·K)]
+            nodesNo (int): Number of nodes in the mesh
+            elementsNo (int): Number of elements in the mesh
         """
         self.simTime = simTime
         self.simStepTime = simStepTime
@@ -34,8 +34,8 @@ class Global:
 
     def print_values(self):
         """
-        Wyświetla wszystkie parametry globalne symulacji.
-        Funkcja pomocnicza do debugowania i weryfikacji danych wejściowych.
+        Displays all simulation global parameters.
+        Helper function for debugging and verifying input data.
         """
         print("SimulationTime:", self.simTime)
         print("SimulationStepTime:", self.simStepTime)

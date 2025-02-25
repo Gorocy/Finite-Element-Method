@@ -16,38 +16,38 @@ def separate_data():
     """Funkcja pomocnicza do wizualnego oddzielenia sekcji wyników"""
     print("="*111)
 
-# Słowniki i listy do przechowywania danych
-data = {}          # Parametry symulacji
-nodes = {}         # Węzły siatki
-elements = []      # Elementy siatki
-node_section = False # Flaga do identyfikacji sekcji węzłów
-element_section = False # Flaga do identyfikacji sekcji elementów
-bc_section = False # Flaga do identyfikacji sekcji warunków brzegowych
-bc_nodes = set()   # Zbiór węzłów z warunkami brzegowymi
-h_matrices = []    # Lista lokalnych macierzy H
-hbc_matrices = []  # Lista lokalnych macierzy HBC
-summed_matrices = []  # Lista zsumowanych macierzy H+HBC
-p_vectors = []     # Lista lokalnych wektorów P
-c_matrices = []    # Lista lokalnych macierzy C
+# Dictionaries and lists to store data
+data = {}          # Simulation parameters
+nodes = {}         # Nodes of the grid
+elements = []      # Elements of the grid
+node_section = False # Flag to identify the node section
+element_section = False # Flag to identify the element section
+bc_section = False # Flag to identify the boundary condition section
+bc_nodes = set()   # Set of nodes with boundary conditions
+h_matrices = []    # List of local H matrices
+hbc_matrices = []  # List of local HBC matrices
+summed_matrices = []  # List of summed H+HBC matrices
+p_vectors = []     # List of local P vectors
+c_matrices = []    # List of local C matrices
 
-# Wczytanie danych z pliku
+# Reading data from a file
 plik = "data/Test1_4_4.txt"
 # plik = "data/Test2_4_4_MixGrid.txt"
 # plik = "data/Test3_31_31_kwadrat.txt"
 
-# Pierwsza iteracja - wczytanie węzłów i elementów
+# First iteration - reading nodes and elements
 with open(plik, "r") as file:
     for line in file:
         line = line.strip()
 
-        # Sekcja węzłów
+        # Node section
         if line.startswith("*Node"):
             node_section = True
             element_section = False
             bc_section = False
             continue
 
-        # Sekcja elementów
+        # Element section
         elif line.startswith("*Element"):
             element_section = True
             node_section = False
@@ -58,7 +58,7 @@ with open(plik, "r") as file:
             node_section = False
             element_section = False
 
-        # Wczytywanie węzłów
+        # Reading nodes
         if node_section:
             parts = line.split(',')
             if len(parts) == 3:
@@ -66,7 +66,7 @@ with open(plik, "r") as file:
                 node = Node(node_id, x, y)
                 nodes[node_id] = node
 
-        # Wczytywanie elementów
+        # Reading elements
         if element_section:
             if line:
                 element_id, *element_nodes = map(int, line.split(','))
@@ -76,7 +76,7 @@ with open(plik, "r") as file:
                     element.addNode(node)
                 elements.append(element)
 
-        # Wczytywanie parametrów symulacji
+        # Reading simulation parameters
         parts = line.split()
         if len(parts) < 3:
             key = parts[0]
@@ -87,7 +87,7 @@ with open(plik, "r") as file:
             value = parts[2]
             data[key] = value
 
-# Druga iteracja - wczytanie warunków brzegowych
+# Second iteration - reading boundary conditions
 with open(plik, "r") as file:
     for line in file:
         line = line.strip()
@@ -101,12 +101,12 @@ with open(plik, "r") as file:
             if line:
                 bc_nodes.update(map(int, line.split(',')))
 
-# Ustawienie warunków brzegowych dla węzłów
+# Setting boundary conditions for nodes
 for node_id in bc_nodes:
     if node_id in nodes:
         nodes[node_id].BC = 1
 
-# Inicjalizacja parametrów globalnych symulacji
+# Initializing simulation parameters
 global_data = Global(
     simTime=int(data.get('SimulationTime', 0)),
     simStepTime=int(data.get('SimulationStepTime', 0)),
@@ -121,38 +121,38 @@ global_data = Global(
 )
 global_data.print_values()
 
-# Utworzenie siatki MES
+# Creating the MES grid
 grid = Grid(global_data.nodesNo, global_data.elementsNo)
 for node in nodes.values():
     grid.addNode(node)
 
-# Obliczenia dla każdego elementu
+# Calculations for each element
 for element in elements:
     grid.addElement(element)
 
-    # Obliczenie lokalnej macierzy H
-    # to macierz opisująca transport ciepła między poszczególnymi węzłami siatki
+    # Calculation of the local H matrix
+    # matrix describing the heat transfer between individual nodes of the grid
     temp_h = MatrixH(element, no_integration_nodes, global_data.conductivity)
     h_matrices.append(temp_h)
 
-    # Obliczenie lokalnej macierzy HBC
-    # to macierz opisująca transport ciepła wnikającego przez ściany objęte warunkiem brzegowym konwekcji, 
-    # HBC jest zbiorem wartości opisujących wpływ konwekcji na układ na powierzchni elementu 
-    # zależy od zmiennej temperatury tej powierzchni.
+    # Calculation of the local HBC matrix
+    # matrix describing the heat transfer through the walls subject to a convective boundary condition, 
+    # HBC is a set of values describing the influence of convection on the system on the surface of the element 
+    # depends on the variable temperature of this surface.
     temp_hbc = MacierzHBC(element, no_integration_nodes, global_data.alfa)
     hbc_matrices.append(temp_hbc.hbc_matrix)
 
-    # Obliczenie lokalnego wektora P
-    # to wektor obciążeń opisujący wpływ temperatury otoczenia na poszczególne węzły siatki elementu
+    # Calculation of the local P vector
+    # vector describing the influence of the ambient temperature on the individual nodes of the element grid
     temp_p_vector = WektorP(element, no_integration_nodes, global_data.alfa, global_data.tot)
     p_vectors.append(temp_p_vector)
 
-    # Obliczenie lokalnej macierzy C
-    # to macierz opisująca stopień akumulacji energii cieplnej przez węzły
+    # Calculation of the local C matrix
+    # matrix describing the degree of heat energy accumulation by nodes
     temp_c = MacierzC(global_data.specificHeat, global_data.density, element)
     c_matrices.append(temp_c)
 
-# Sumowanie macierzy H i HBC
+# Summing matrices H and HBC
 for h_matrix, hbc_matrix in zip(h_matrices, hbc_matrices):
 
     summed_matrix = MatrixH(h_matrix.element, no_integration_nodes, global_data.conductivity)
@@ -161,29 +161,29 @@ for h_matrix, hbc_matrix in zip(h_matrices, hbc_matrices):
 
     summed_matrices.append(summed_matrix)
 
-# Wyświetlenie wyników
+# Displaying results
 separate_data()
 grid.printGrid()
 separate_data()
 
-# Agregacja macierzy globalnych
-print("\n Macierz H Globalna")
+# Aggregation of global matrices
+print("\n Global H Matrix")
 h_glob = MacierzHGlobalna(global_data.elementsNo, global_data.nodesNo, summed_matrices)
 h_glob.print_global_matrix()
 
-print("\n Wektor P Globalny")
+print("\n Global P Vector")
 p_glob = WektorPGlobalny(global_data.elementsNo, global_data.nodesNo, p_vectors)
 p_glob.print_global_vector()
 
-print("\n Macierz C Globalna")
+print("\n Global C Matrix")
 c_glob = MacierzCGlobalna(global_data.elementsNo, global_data.nodesNo, c_matrices)
 c_glob.print_global_matrix()
 
-print("\n Macierz C Globalna po podzieleniu przez dtau")
+print("\n Global C Matrix after dividing by dtau")
 c_glob.divide_matrix_by_dtau(global_data.simStepTime)
 c_glob.print_global_matrix()
 
-# Symulacja czasowa
+# Time simulation
 t0_vector = [global_data.initialTemp] * global_data.nodesNo
 current_time = global_data.simStepTime
 
@@ -191,34 +191,34 @@ headers = [f"Node {i+1}" for i in range(len(t0_vector))]
 table_data = []
 min_max_table_data = []
 
-# Główna pętla symulacji
+# Main simulation loop
 while current_time <= global_data.simTime:
-    # Pobranie aktualnych macierzy globalnych
+    # Getting the current global matrices
     macierz_h_globalna = h_glob
     wektor_p_globalny = p_glob
     macierz_c_globalna = c_glob
 
-    # Obliczenie układu równań do rozwiązania
+    # Calculation of the system of equations to solve
     matrix_c_h_summed = sum_matrices(macierz_c_globalna.c_matrix_global, macierz_h_globalna.h_matrix_global)
     matrix_c_multiplied = macierz_c_globalna.multiply_matrix_by_vector(t0_vector)
     vectors_summed = sum_vectors(matrix_c_multiplied, wektor_p_globalny.p_vector_global)
 
-    # Rozwiązanie układu równań
+    # Solving the system of equations
     solution = gaussian_elimination(matrix_c_h_summed, vectors_summed)
     
-    # Zapisanie wyników
+    # Saving results
     row = [f"{value:.2f}" for value in solution]
     table_data.append([f"Time {current_time}"] + row)
     
-    # Tablica z min i max temperaturami
+    # Array with min and max temperatures
     min_value = min(solution)
     max_value = max(solution)
     min_max_table_data.append([f"Time {current_time}", f"Min: {min_value:.9f}", f"Max: {max_value:.9f}"])
     print("time: ", current_time, "min: ", min_value, "max: ", max_value)
-    # Przygotowanie do następnego kroku czasowego
+    # Preparing for the next time step
     t0_vector = solution
     current_time += global_data.simStepTime
 
-# Wyświetlenie wyników symulacji
+# Displaying simulation results
 print(tabulate(table_data, headers=["Time"] + headers, tablefmt="grid"))
 print(tabulate(min_max_table_data, headers=["Time", "Min", "Max"], tablefmt="grid"))

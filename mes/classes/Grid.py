@@ -1,28 +1,28 @@
 class Grid:
     """
-    Klasa reprezentująca siatkę elementów skończonych.
-    Przechowuje węzły i elementy tworzące siatkę MES oraz zarządza ich dodawaniem.
+    Class representing a finite element mesh.
+    Stores nodes and elements forming the mesh and manages their addition.
     """
     
     def __init__(self, nNodes, nElements):
         """
-        Inicjalizacja siatki MES.
+        Initializes the finite element mesh.
         
         Args:
-            nNodes (int): Maksymalna liczba węzłów w siatce
-            nElements (int): Maksymalna liczba elementów w siatce
+            nNodes (int): Maximum number of nodes in the mesh
+            nElements (int): Maximum number of elements in the mesh
         """
         self.nNodes = nNodes
         self.nElements = nElements
-        self.nodes = []        # Lista przechowująca wszystkie węzły siatki
-        self.elements = []     # Lista przechowująca wszystkie elementy siatki
+        self.nodes = []        # List storing all nodes in the mesh
+        self.elements = []     # List storing all elements in the mesh
 
     def addNode(self, node):
         """
-        Dodaje nowy węzeł do siatki, jeśli nie przekroczono maksymalnej liczby węzłów.
+        Adds a new node to the mesh, if the maximum number of nodes is not exceeded.
         
         Args:
-            node (Node): Obiekt węzła do dodania do siatki
+            node (Node): Node object to add to the mesh
         """
         if len(self.nodes) > self.nNodes:
             print("Too many nodes")
@@ -31,10 +31,10 @@ class Grid:
 
     def addElement(self, element):
         """
-        Dodaje nowy element do siatki, jeśli nie przekroczono maksymalnej liczby elementów.
+        Adds a new element to the mesh, if the maximum number of elements is not exceeded.
         
         Args:
-            element (Element): Obiekt elementu do dodania do siatki
+            element (Element): Element object to add to the mesh
         """
         if len(self.elements) > self.nElements:
             print("Too many elements")
@@ -43,8 +43,8 @@ class Grid:
 
     def printGrid(self):
         """
-        Wyświetla informacje o wszystkich węzłach i elementach w siatce.
-        Funkcja pomocnicza do wizualizacji i debugowania struktury siatki.
+        Displays information about all nodes and elements in the mesh.
+        Helper function for visualizing and debugging the mesh structure.
         """
         print("Nodes:")
         count = 1

@@ -1,24 +1,24 @@
 def sum_matrices(c_matrix_total, h_matrix_total):
     """
-    Sumuje globalne macierze C i H do postaci [C]/dτ + [H].
-    Operacja wymagana w metodzie różnic skończonych.
+    Sums the global matrices C and H to form [C]/dτ + [H].
+    Operation required in the finite difference method.
     
     Args:
-        c_matrix_total (list[list[float]]): Globalna macierz pojemności cieplnej [C]
-        h_matrix_total (list[list[float]]): Globalna macierz przewodzenia ciepła [H]
+        c_matrix_total (list[list[float]]): Global matrix of thermal capacity [C]
+        h_matrix_total (list[list[float]]): Global matrix of heat conduction [H]
         
     Returns:
         list[list[float]]: Suma macierzy [C]/dτ + [H]
         
     Note:
-        Zakłada się, że obie macierze mają te same wymiary (no_nodes x no_nodes)
+        Assumes that both matrices have the same dimensions (no_nodes x no_nodes)
     """
-    # Pobranie rozmiaru macierzy (liczba węzłów)
+    # Getting the size of the matrix (number of nodes)
     no_nodes = len(c_matrix_total)
-    # Inicjalizacja macierzy wynikowej zerami
+    # Initializing the result matrix with zeros
     total_matrix_sum = [[0] * no_nodes for _ in range(no_nodes)]
 
-    # Sumowanie odpowiadających sobie elementów macierzy
+    # Summing the corresponding elements of the matrices
     for i in range(no_nodes):
         for j in range(no_nodes):
             total_matrix_sum[i][j] = c_matrix_total[i][j] + h_matrix_total[i][j]
@@ -27,25 +27,25 @@ def sum_matrices(c_matrix_total, h_matrix_total):
 
 def sum_vectors(c_multiplied, p_vector):
     """
-    Sumuje wektor {[C]/dτ}·{T0} z wektorem {P}.
-    Operacja wymagana w metodzie różnic skończonych.
+    Sums the vector {[C]/dτ}·{T0} with the vector {P}.
+    Operation required in the finite difference method.
     
     Args:
-        c_multiplied (list[float]): Wektor powstały z mnożenia [C]/dτ przez {T0}
-        p_vector (list[float]): Wektor obciążeń cieplnych {P}
+        c_multiplied (list[float]): Vector obtained from multiplying [C]/dτ by {T0}
+        p_vector (list[float]): Vector of thermal loads {P}
         
     Returns:
-        list[float]: Suma wektorów {[C]/dτ}·{T0} + {P}
+        list[float]: Sum of vectors {[C]/dτ}·{T0} + {P}
         
     Note:
-        Zakłada się, że oba wektory mają tę samą długość (no_nodes)
+        Assumes that both vectors have the same length (no_nodes)
     """
-    # Pobranie długości wektorów (liczba węzłów)
+    # Getting the length of the vectors (number of nodes)
     no_nodes = len(c_multiplied)
-    # Inicjalizacja wektora wynikowego zerami
+    # Initializing the result vector with zeros
     total_vector_sum = [0] * no_nodes
 
-    # Sumowanie odpowiadających sobie elementów wektorów
+    # Summing the corresponding elements of the vectors
     for i in range(no_nodes):
         total_vector_sum[i] = c_multiplied[i] + p_vector[i]
 

@@ -2,50 +2,50 @@ from tabulate import tabulate
 
 class MacierzCGlobalna:
     """
-    Klasa implementująca globalną macierz pojemności cieplnej dla całej siatki MES.
-    Agreguje lokalne macierze pojemności cieplnej w jedną macierz globalną.
+    Class implementing the global matrix of thermal capacity for the entire MES grid.
+    Aggregates local thermal capacity matrices into a global matrix.
     """
     
     def __init__(self, no_elements, no_nodes, c_matrices):
         """
-        Inicjalizacja i agregacja globalnej macierzy pojemności cieplnej.
+        Initialization and aggregation of the global matrix of thermal capacity.
         
         Args:
-            no_elements (int): Liczba elementów w siatce MES
-            no_nodes (int): Liczba węzłów w siatce MES
-            c_matrices (list[MacierzC]): Lista lokalnych macierzy pojemności cieplnej
+            no_elements (int): Number of elements in the MES grid
+            no_nodes (int): Number of nodes in the MES grid
+            c_matrices (list[MacierzC]): List of local thermal capacity matrices
         """
         self.no_nodes = no_nodes
         self.c_matrices = c_matrices
-        self.elements = []  # Lista elementów skończonych
-        # Tablica indeksów węzłów dla każdego elementu
+        self.elements = []  # List of finite elements
+        # Array of node indices for each element
         self.element_IDs = [[0] * 4 for _ in range(no_elements)]
-        # Inicjalizacja globalnej macierzy C
+        # Initialization of the global matrix C
         self.c_matrix_global = [[0] * no_nodes for _ in range(no_nodes)]
 
-        # Pobranie elementów z macierzy lokalnych
+        # Getting the elements from the local matrices
         for matrix in self.c_matrices:
             self.elements.append(matrix.element)
 
-        # Utworzenie tablicy indeksów węzłów dla każdego elementu
+        # Creating an array of node indices for each element
         for i in range(no_elements):
             for j in range(4):
                 self.element_IDs[i][j] = self.elements[i].connected_nodes[j].node_id
 
-        # Agregacja macierzy lokalnych w macierz globalną
+        # Aggregation of local matrices into a global matrix
         for k in range(no_elements):
             c_matrix = self.c_matrices[k].total_matrix
             for i in range(4):
                 for j in range(4):
                     global_row = self.element_IDs[k][i]
                     global_col = self.element_IDs[k][j]
-                    # Dodanie wartości z macierzy lokalnej do odpowiedniej pozycji w macierzy globalnej
+                    # Adding the value from the local matrix to the corresponding position in the global matrix
                     self.c_matrix_global[global_row - 1][global_col - 1] += c_matrix[i][j]
 
     def print_global_matrix(self):
         """
-        Wyświetla globalną macierz pojemności cieplnej w sformatowanej tabeli.
-        Używa biblioteki tabulate do formatowania wydruku.
+        Displays the global matrix of thermal capacity in a formatted table.
+        Uses the tabulate library for formatting the output.
         """
         headers = [""] + list(range(1, self.no_nodes + 1))
         table = [[i + 1] + row for i, row in enumerate(self.c_matrix_global)]
@@ -53,11 +53,11 @@ class MacierzCGlobalna:
 
     def divide_matrix_by_dtau(self, dtau):
         """
-        Dzieli wszystkie elementy macierzy globalnej przez krok czasowy.
-        Operacja wymagana w metodzie różnic skończonych.
+        Divides all elements of the global matrix by the time step.
+        Operation required in the finite difference method.
         
         Args:
-            dtau (float): Krok czasowy [s]
+            dtau (float): Time step [s]
         """
         for i in range(self.no_nodes):
             for j in range(self.no_nodes):
@@ -65,13 +65,13 @@ class MacierzCGlobalna:
 
     def multiply_matrix_by_vector(self, t0_vector):
         """
-        Mnoży globalną macierz C przez wektor temperatur.
+        Multiplies the global matrix C by the temperature vector.
         
         Args:
-            t0_vector (list[float]): Wektor temperatur w węzłach
+            t0_vector (list[float]): Temperature vector at nodes
             
         Returns:
-            list[float]: Wektor wynikowy mnożenia macierzy przez wektor
+            list[float]: Result vector of the multiplication of the matrix by the vector
         """
         result_vector = [0] * self.no_nodes
         for i in range(self.no_nodes):

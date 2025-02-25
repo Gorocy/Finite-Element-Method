@@ -5,16 +5,16 @@ from mes.classes.Node import Node
 from mes.classes.Element import Element
 from tabulate import tabulate
 
-# Inicjalizacja elementu uniwersalnego dla zadanej liczby węzłów całkowania
+# Initialization of the universal element for a given number of integration nodes
 el = UniversalElement(no_integration_nodes)
 
-# Definicja węzłów testowego elementu skończonego
-n1 = Node(1, 0, 0, 1)          # Węzeł lewy dolny
-n2 = Node(2, 0.025, 0, 1)      # Węzeł prawy dolny
-n3 = Node(3, 0.025, 0.025, 1)  # Węzeł prawy górny
-n4 = Node(4, 0, 0.025, 1)      # Węzeł lewy górny
+# Definition of the test finite element nodes
+n1 = Node(1, 0, 0, 1)          # Lower left node
+n2 = Node(2, 0.025, 0, 1)      # Lower right node
+n3 = Node(3, 0.025, 0.025, 1)  # Upper right node
+n4 = Node(4, 0, 0.025, 1)      # Upper left node
 
-# Utworzenie elementu i dodanie do niego węzłów
+# Creation of the element and adding the nodes to it
 elem = Element(1)
 elem.addNode(n1)
 elem.addNode(n2)
@@ -24,44 +24,44 @@ elem.addNode(n4)
 
 class MacierzC:
     """
-    Klasa implementująca macierz pojemności cieplnej [C] dla MES.
-    Oblicza macierz pojemności cieplnej dla czterowęzłowego elementu skończonego.
+    Class implementing the matrix of thermal capacity [C] for MES.
+    Calculates the matrix of thermal capacity for a four-node finite element.
     """
     
     def __init__(self, specific_heat, density, element):
         """
-        Inicjalizacja i obliczenie macierzy pojemności cieplnej.
+        Initialization and calculation of the matrix of thermal capacity.
         
         Args:
-            specific_heat (float): Ciepło właściwe materiału [J/(kg·K)]
-            density (float): Gęstość materiału [kg/m³]
-            element (Element): Element skończony, dla którego obliczana jest macierz
+            specific_heat (float): Specific heat of the material [J/(kg·K)]
+            density (float): Material density [kg/m³]
+            element (Element): Finite element for which the matrix is calculated
         """
-        # Inicjalizacja tablicy funkcji kształtu dla wszystkich punktów całkowania
+        # Initialization of the array of shape functions for all integration points
         self.n_functions = [[0] * 4 for _ in range(no_integration_nodes ** 2)]
-        self.c_matrices = []  # Lista macierzy C dla każdego punktu całkowania
+        self.c_matrices = []  # List of C matrices for each integration point
         self.element = element
 
-        # Obliczenie wartości funkcji kształtu w punktach całkowania
+        # Calculation of the shape function values at the integration points
         for i in range(no_integration_nodes ** 2):
             self.n_functions[i][0] = N1(el.integration_points[i].x, el.integration_points[i].y)
             self.n_functions[i][1] = N2(el.integration_points[i].x, el.integration_points[i].y)
             self.n_functions[i][2] = N3(el.integration_points[i].x, el.integration_points[i].y)
             self.n_functions[i][3] = N4(el.integration_points[i].x, el.integration_points[i].y)
 
-        # Obliczenie wyznaczników macierzy Jacobiego dla każdego punktu całkowania
+        # Calculation of the Jacobian determinants for each integration point
         self.jacobian_determinants = []
         for i in range(no_integration_nodes ** 2):
             temporary_jacobian = JacobianMatrix(element, no_integration_nodes, i)
             self.jacobian_determinants.append(temporary_jacobian.detJ)
 
-        # Pobranie wag całkowania z elementu uniwersalnego
+        # Getting the integration weights from the universal element
         self.weights = []
         for weight in range(len(el.weights)):
             tmp = el.weights[weight]
             self.weights.append(tmp)
 
-        # Obliczenie macierzy C dla każdego punktu całkowania
+        # Calculation of the C matrix for each integration point
         for i in range(no_integration_nodes ** 2):
             matrix_c_temp = [[0] * 4 for _ in range(4)]
 
@@ -75,15 +75,15 @@ class MacierzC:
 
             self.c_matrices.append(matrix_c_temp)
 
-        # Obliczenie końcowej macierzy C przez sumowanie
+        # Calculation of the final C matrix by summing
         self.total_matrix = self.sum_matrices()
 
     def sum_matrices(self):
         """
-        Sumuje macierze C z wszystkich punktów całkowania z uwzględnieniem wag.
+        Sums the C matrices from all integration points with consideration of weights.
         
         Returns:
-            list[list[float]]: Końcowa macierz pojemności cieplnej
+            list[list[float]]: Final matrix of thermal capacity
         """
         total_matrix = [[0] * 4 for _ in range(4)]
 
@@ -98,7 +98,7 @@ class MacierzC:
 
     def print_N_functions(self):
         """
-        Wyświetla wartości funkcji kształtu we wszystkich punktach całkowania.
+        Displays the values of the shape functions at all integration points.
         """
         for i in range(no_integration_nodes ** 2):
             for j in range(4):
@@ -108,8 +108,8 @@ class MacierzC:
 
     def print_c_matrices(self):
         """
-        Wyświetla macierze C dla wszystkich punktów całkowania.
-        Używa biblioteki tabulate do formatowania wydruku.
+        Displays the C matrices for all integration points.
+        Uses the tabulate library for formatting the output.
         """
         for i, matrix in enumerate(self.c_matrices):
             print(f"Integration Point {i + 1} Matrix:")
@@ -118,8 +118,8 @@ class MacierzC:
 
     def print_total_matrix(self):
         """
-        Wyświetla końcową (zsumowaną) macierz pojemności cieplnej.
-        Używa biblioteki tabulate do formatowania wydruku.
+        Displays the final (summed) matrix of thermal capacity.
+        Uses the tabulate library for formatting the output.
         """
         print("Total Matrix C:")
         print(tabulate(self.total_matrix, tablefmt="grid", floatfmt=".6f"))

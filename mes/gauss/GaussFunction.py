@@ -2,28 +2,28 @@ import math
 
 def functionX(x):
     """
-    Funkcja jednowymiarowa używana w obliczeniach całkowania metodą Gaussa.
-    Reprezentuje wielomian drugiego stopnia.
+    One-dimensional function used in Gaussian integration calculations.
+    Represents a second-degree polynomial.
     
     Args:
-        x (float): Zmienna niezależna
+        x (float): Independent variable
     
     Returns:
-        float: Wartość funkcji 5x² + 3x + 6
+        float: Value of the function 5x² + 3x + 6
     """
     return 5 * x ** 2 + 3 * x + 6
 
 
 def functionXY(x, y):
     """
-    Funkcja dwuwymiarowa używana w obliczeniach całkowania metodą Gaussa.
-    Reprezentuje wielomian drugiego stopnia względem obu zmiennych.
+    Two-dimensional function used in Gaussian integration calculations.
+    Represents a second-degree polynomial with respect to both variables.
     
     Args:
-        x (float): Pierwsza zmienna niezależna
-        y (float): Druga zmienna niezależna
+        x (float): First independent variable
+        y (float): Second independent variable
     
     Returns:
-        float: Wartość funkcji 5x²y² + 3xy + 6
+        float: Value of the function 5x²y² + 3xy + 6
     """
     return 5 * x ** 2 * y ** 2 + 3 * x * y + 6
