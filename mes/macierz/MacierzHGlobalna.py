@@ -1,4 +1,7 @@
 from tabulate import tabulate
+from typing import List
+from mes.macierz.MacierzH import MatrixH
+from mes.classes.Element import Element
 
 class MacierzHGlobalna:
     """
@@ -6,7 +9,7 @@ class MacierzHGlobalna:
     Aggregates local H matrices into a global matrix, considering the connections between elements.
     """
     
-    def __init__(self, no_elements, no_nodes, h_matrices):
+    def __init__(self, no_elements: int, no_nodes: int, h_matrices: List[MatrixH]):
         """
         Initialization and aggregation of the global matrix of heat conduction.
         
@@ -15,13 +18,13 @@ class MacierzHGlobalna:
             no_nodes (int): Number of nodes in the MES grid
             h_matrices (list[MatrixH]): List of local H matrices for each element
         """
-        self.no_nodes = no_nodes
-        self.h_matrices = h_matrices
-        self.elements = []  # List of finite elements
+        self.no_nodes: int = no_nodes
+        self.h_matrices: List[MatrixH] = h_matrices
+        self.elements: List[Element] = []  # List of finite elements
         # Array of node indices for each element (4 nodes per element)
-        self.element_IDs = [[0] * 4 for _ in range(no_elements)]
+        self.element_IDs: List[List[int]] = [[0] * 4 for _ in range(no_elements)]
         # Initialization of the global matrix H with zeros
-        self.h_matrix_global = [[0] * no_nodes for _ in range(no_nodes)]
+        self.h_matrix_global: List[List[float]] = [[0] * no_nodes for _ in range(no_nodes)]
 
         # Getting the elements from the local matrices
         for matrix in self.h_matrices:
@@ -44,7 +47,7 @@ class MacierzHGlobalna:
                     # Adding the value from the local matrix to the corresponding position in the global matrix
                     self.h_matrix_global[global_row - 1][global_col - 1] += h_matrix[i][j]
 
-    def print_global_matrix(self):
+    def print_global_matrix(self) -> None:
         """
         Displays the global matrix H in a formatted table.
         Uses the tabulate library for formatting the output.

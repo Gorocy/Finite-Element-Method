@@ -1,4 +1,6 @@
-def sum_matrices(c_matrix_total, h_matrix_total):
+from typing import List
+
+def sum_matrices(c_matrix_total: List[List[float]], h_matrix_total: List[List[float]]) -> List[List[float]]:
     """
     Sums the global matrices C and H to form [C]/dτ + [H].
     Operation required in the finite difference method.
@@ -25,7 +27,7 @@ def sum_matrices(c_matrix_total, h_matrix_total):
 
     return total_matrix_sum
 
-def sum_vectors(c_multiplied, p_vector):
+def sum_vectors(c_multiplied: List[float], p_vector: List[float]) -> List[float]:
     """
     Sums the vector {[C]/dτ}·{T0} with the vector {P}.
     Operation required in the finite difference method.

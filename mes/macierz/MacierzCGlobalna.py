@@ -1,4 +1,7 @@
 from tabulate import tabulate
+from typing import List
+from mes.macierz.MacierzC import MacierzC
+from mes.classes.Element import Element
 
 class MacierzCGlobalna:
     """
@@ -6,7 +9,7 @@ class MacierzCGlobalna:
     Aggregates local thermal capacity matrices into a global matrix.
     """
     
-    def __init__(self, no_elements, no_nodes, c_matrices):
+    def __init__(self, no_elements: int, no_nodes: int, c_matrices: List[MacierzC]):
         """
         Initialization and aggregation of the global matrix of thermal capacity.
         
@@ -15,13 +18,13 @@ class MacierzCGlobalna:
             no_nodes (int): Number of nodes in the MES grid
             c_matrices (list[MacierzC]): List of local thermal capacity matrices
         """
-        self.no_nodes = no_nodes
-        self.c_matrices = c_matrices
-        self.elements = []  # List of finite elements
+        self.no_nodes: int = no_nodes
+        self.c_matrices: List[MacierzC] = c_matrices
+        self.elements: List[Element] = []  # List of finite elements
         # Array of node indices for each element
-        self.element_IDs = [[0] * 4 for _ in range(no_elements)]
+        self.element_IDs: List[List[int]] = [[0] * 4 for _ in range(no_elements)]
         # Initialization of the global matrix C
-        self.c_matrix_global = [[0] * no_nodes for _ in range(no_nodes)]
+        self.c_matrix_global: List[List[float]] = [[0] * no_nodes for _ in range(no_nodes)]
 
         # Getting the elements from the local matrices
         for matrix in self.c_matrices:
@@ -42,7 +45,7 @@ class MacierzCGlobalna:
                     # Adding the value from the local matrix to the corresponding position in the global matrix
                     self.c_matrix_global[global_row - 1][global_col - 1] += c_matrix[i][j]
 
-    def print_global_matrix(self):
+    def print_global_matrix(self) -> None:
         """
         Displays the global matrix of thermal capacity in a formatted table.
         Uses the tabulate library for formatting the output.
@@ -51,7 +54,7 @@ class MacierzCGlobalna:
         table = [[i + 1] + row for i, row in enumerate(self.c_matrix_global)]
         print(tabulate(table, headers=headers, tablefmt="grid"))
 
-    def divide_matrix_by_dtau(self, dtau):
+    def divide_matrix_by_dtau(self, dtau: float) -> None:
         """
         Divides all elements of the global matrix by the time step.
         Operation required in the finite difference method.
@@ -63,7 +66,7 @@ class MacierzCGlobalna:
             for j in range(self.no_nodes):
                 self.c_matrix_global[i][j] /= dtau
 
-    def multiply_matrix_by_vector(self, t0_vector):
+    def multiply_matrix_by_vector(self, t0_vector: List[float]) -> List[float]:
         """
         Multiplies the global matrix C by the temperature vector.
         
@@ -73,7 +76,7 @@ class MacierzCGlobalna:
         Returns:
             list[float]: Result vector of the multiplication of the matrix by the vector
         """
-        result_vector = [0] * self.no_nodes
+        result_vector: List[float] = [0] * self.no_nodes
         for i in range(self.no_nodes):
             for j in range(self.no_nodes):
                 result_vector[i] += self.c_matrix_global[i][j] * t0_vector[j]

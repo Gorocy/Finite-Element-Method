@@ -2,6 +2,7 @@ from mes.classes.Node import Node
 from mes.classes.Element import Element
 from mes.macierz.UniversalElement import UniversalElement
 from mes.macierz.MacierzH import no_integration_nodes
+from typing import List
 
 n1 = Node(1, 0.1, 0.005, 1)
 n2 = Node(2, 0.0546918, 0.005, 1)
@@ -16,25 +17,25 @@ elem.addNode(n4)
 
 _universal = UniversalElement(no_integration_nodes)
 
-def print_matrix(matrix, name):
+def print_matrix(matrix: List[List[float]], name: str) -> None:
     print(f"{name}:")
     for row in matrix:
         print(row)
     print()
 
-def N1(ksi, eta):
+def N1(ksi: float, eta: float) -> float:
     result = 0.25 * (1-ksi) * (1-eta)
     return result
 
-def N2(ksi, eta):
+def N2(ksi: float, eta: float) -> float:
     result = 0.25 * (1+ksi) * (1-eta)
     return result
 
-def N3(ksi, eta):
+def N3(ksi: float, eta: float) -> float:
     result = 0.25 * (1+ksi) * (1+eta)
     return result
 
-def N4(ksi, eta):
+def N4(ksi: float, eta: float) -> float:
     result = 0.25 * (1-ksi) * (1+eta)
     return result
 
@@ -50,16 +51,16 @@ def calculate_distance(node1: Node, node2: Node) -> float:
     return distance
 
 
-def powierzchnie_bc(element: Element):
+def powierzchnie_bc(element: Element) -> List[int]:
     """
-    Identyfikuje powierzchnie elementu z warunkami brzegowymi.
+    Identifies the surfaces of the element with boundary conditions.
     
     Args:
-        element (Element): Element skończony do analizy
+        element (Element): Finite element to analyze
         
     Returns:
-        list[int]: Lista 4 wartości określających warunki brzegowe na każdej ścianie
-                  (0 - brak warunku brzegowego, >0 - warunek brzegowy)
+        list[int]: List of 4 values specifying the boundary conditions on each side
+                  (0 - no boundary condition, >0 - boundary condition)
     """
     # Initialization of arrays of boundary conditions for nodes and surfaces
     punkty_z_bc = [0,  # point 0 (First point in element ->  Bottom left)
@@ -103,18 +104,18 @@ def powierzchnie_bc(element: Element):
 
 
 class MacierzHBC:
-    def __init__(self, element, no_int_nodes, alfa):
-        self.element = element
-        self.no_int_nodes = no_int_nodes
-        self.sciany_z_bc = powierzchnie_bc(element)
-        self.punkty_bc0 = []     #integration points - bottom wall
-        self.punkty_bc1 = []     #integration points - right wall
-        self.punkty_bc2 = []     #integration points - top wall
-        self.punkty_bc3 = []     #integration points - left wall
-        self.hbc_side_matrices = []
-        self.hbc_matrix = [[0 for _ in range(4)] for _ in range(4)]
+    def __init__(self, element: Element, no_int_nodes: int, alfa: float):
+        self.element: Element = element
+        self.no_int_nodes: int = no_int_nodes
+        self.sciany_z_bc: List[int] = powierzchnie_bc(element)
+        self.punkty_bc0: List[Node] = []     #integration points - bottom wall
+        self.punkty_bc1: List[Node] = []     #integration points - right wall
+        self.punkty_bc2: List[Node] = []     #integration points - top wall
+        self.punkty_bc3: List[Node] = []     #integration points - left wall
+        self.hbc_side_matrices: List[List[List[float]]] = []
+        self.hbc_matrix: List[List[float]] = [[0 for _ in range(4)] for _ in range(4)]
 
-        self.weights = []
+        self.weights: List[float] = []
         for weight in range(no_int_nodes):
             tmp = _universal.weights[weight].x
             self.weights.append(tmp)
@@ -122,8 +123,8 @@ class MacierzHBC:
         # for weight in self.weights:
         #     print(weight)
 
-        x_cords = []
-        y_cords = []
+        x_cords: List[float] = []
+        y_cords: List[float] = []
 
         for i in range(no_int_nodes ** 2):
             y_cords.append(_universal.integration_points[i].y)
@@ -158,7 +159,7 @@ class MacierzHBC:
 
         self.calculate_hbc()
 
-    def print_matrix_hbc(self):
+    def print_matrix_hbc(self) -> None:
         for i in range(len(self.hbc_side_matrices)):
             print("Matrix HBC", i+1)
             for col in range(4):
@@ -167,7 +168,7 @@ class MacierzHBC:
                     print(f"{value:.6f}", end="\t")
                 print()
 
-    def print_integration_points(self):
+    def print_integration_points(self) -> None:
         # Print points
         print("Points on the Bottom Wall (bc0):")
         for point in self.punkty_bc0:
@@ -185,31 +186,26 @@ class MacierzHBC:
         for point in self.punkty_bc3:
             point.printNode()
 
-    def outer_product(self, vec1, vec2):
+    def outer_product(self, vec1: List[float], vec2: List[float]) -> List[List[float]]:
         # Calculate the outer product of two vectors
         return [[vec1[i] * vec2[j] for j in range(len(vec2))] for i in range(len(vec1))]
 
-    def calculate_surface(self, nr_boku, conductivity):
-        hbc = [[0 for j in range(4)] for i in range(self.no_int_nodes)]
-        matrixHBC = [[0 for j in range(4)] for i in range(4)]
+    def calculate_surface(self, nr_boku: int, conductivity: float) -> List[List[float]]:
+        hbc: List[List[float]] = [[0 for j in range(4)] for i in range(self.no_int_nodes)]
+        matrixHBC: List[List[float]] = [[0 for j in range(4)] for i in range(4)]
 
         if self.sciany_z_bc[nr_boku] > 0:
             if nr_boku == 0:
                 detJ = calculate_distance(self.element.connected_nodes[0], self.element.connected_nodes[1]) * 0.5
-                #print("DET J 0 - ", detJ)
                 for i in range(len(hbc)):
                     hbc[i][0] = N1(self.punkty_bc0[i].x, self.punkty_bc0[i].y)
-                    #print(self.punkty_bc0[i].x, self.punkty_bc0[i].y)
                     hbc[i][1] = N2(self.punkty_bc0[i].x, self.punkty_bc0[i].y)
                     hbc[i][2] = N3(self.punkty_bc0[i].x, self.punkty_bc0[i].y)
                     hbc[i][3] = N4(self.punkty_bc0[i].x, self.punkty_bc0[i].y)
-                    #print(hbc[i])
 
             elif nr_boku == 1:
                 detJ = calculate_distance(self.element.connected_nodes[1], self.element.connected_nodes[2]) * 0.5
-                #print("DET J 1 - ", detJ)
                 for i in range(len(hbc)):
-                    #print(self.punkty_bc1[i].x, self.punkty_bc1[i].y)
                     hbc[i][0] = N1(self.punkty_bc1[i].x, self.punkty_bc1[i].y)
                     hbc[i][1] = N2(self.punkty_bc1[i].x, self.punkty_bc1[i].y)
                     hbc[i][2] = N3(self.punkty_bc1[i].x, self.punkty_bc1[i].y)
@@ -217,9 +213,7 @@ class MacierzHBC:
 
             elif nr_boku == 2:
                 detJ = calculate_distance(self.element.connected_nodes[2], self.element.connected_nodes[3]) * 0.5
-                #print("DET J 2 - ", detJ)
                 for i in range(len(hbc)):
-                    #print(self.punkty_bc2[i].x, self.punkty_bc2[i].y)
                     hbc[i][0] = N1(self.punkty_bc2[i].x, self.punkty_bc2[i].y)
                     hbc[i][1] = N2(self.punkty_bc2[i].x, self.punkty_bc2[i].y)
                     hbc[i][2] = N3(self.punkty_bc2[i].x, self.punkty_bc2[i].y)
@@ -227,9 +221,7 @@ class MacierzHBC:
 
             elif nr_boku == 3:
                 detJ = calculate_distance(self.element.connected_nodes[3], self.element.connected_nodes[0]) * 0.5
-                #print("DET J 3 - ", detJ)
                 for i in range(len(hbc)):
-                    #print(self.punkty_bc3[i].x, self.punkty_bc3[i].y)
                     hbc[i][0] = N1(self.punkty_bc3[i].x, self.punkty_bc3[i].y)
                     hbc[i][1] = N2(self.punkty_bc3[i].x, self.punkty_bc3[i].y)
                     hbc[i][2] = N3(self.punkty_bc3[i].x, self.punkty_bc3[i].y)
@@ -259,13 +251,13 @@ class MacierzHBC:
 
         return matrixHBC
 
-    def calculate_hbc(self):
+    def calculate_hbc(self) -> None:
         for i in range(4):
             for j in range(4):
                 for k in range(4):
                     self.hbc_matrix[i][j] += self.hbc_side_matrices[k][i][j]
 
-    def print_total_matrix(self):
+    def print_total_matrix(self) -> None:
         print("\nTotal Matrix HBC:")
         for row in self.hbc_matrix:
             for value in row:
@@ -279,26 +271,26 @@ class WektorP:
     Considers convective boundary conditions on the surfaces of the element.
     """
     
-    def __init__(self, element, no_int_nodes, alfa, ambient_temp):
-        self.element = element
-        self.no_int_nodes = no_int_nodes
-        self.alfa = alfa
-        self.ambient_temp = ambient_temp
-        self.sciany_z_bc = powierzchnie_bc(element)
-        self.punkty_bc0 = []     #integration points - bottom wall
-        self.punkty_bc1 = []     #integration points - right wall
-        self.punkty_bc2 = []     #integration points - top wall
-        self.punkty_bc3 = []     #integration points - left wall
-        self.p_side_vectors = []
-        self.p_vector = [0 for _ in range(4)]
+    def __init__(self, element: Element, no_int_nodes: int, alfa: float, ambient_temp: float):
+        self.element: Element = element
+        self.no_int_nodes: int = no_int_nodes
+        self.alfa: float = alfa
+        self.ambient_temp: float = ambient_temp
+        self.sciany_z_bc: List[int] = powierzchnie_bc(element)
+        self.punkty_bc0: List[Node] = []     #integration points - bottom wall
+        self.punkty_bc1: List[Node] = []     #integration points - right wall
+        self.punkty_bc2: List[Node] = []     #integration points - top wall
+        self.punkty_bc3: List[Node] = []     #integration points - left wall
+        self.p_side_vectors: List[List[float]] = []
+        self.p_vector: List[float] = [0 for _ in range(4)]
 
-        self.weights = []
+        self.weights: List[float] = []
         for weight in range(no_int_nodes):
             tmp = _universal.weights[weight].x
             self.weights.append(tmp)
 
-        x_cords = []
-        y_cords = []
+        x_cords: List[float] = []
+        y_cords: List[float] = []
 
         for i in range(no_int_nodes ** 2):
             y_cords.append(_universal.integration_points[i].y)
@@ -333,7 +325,7 @@ class WektorP:
 
         self.calculate_p_vector()
 
-    def print_p_vectors(self):
+    def print_p_vectors(self) -> None:
         """
         Displays the vectors P for all surfaces of the element.
         """
@@ -344,7 +336,7 @@ class WektorP:
                 print(f"{value:.6f}", end="\t")
             print()
 
-    def print_integration_points(self):
+    def print_integration_points(self) -> None:
         """
         Displays the integration points on all surfaces of the element.
         """
@@ -364,7 +356,7 @@ class WektorP:
         for point in self.punkty_bc3:
             point.printNode()
 
-    def calculate_surface(self, nr_boku):
+    def calculate_surface(self, nr_boku: int) -> List[float]:
         """
         Calculates the vector of thermal loads for a given surface of the element.
         
@@ -374,8 +366,8 @@ class WektorP:
         Returns:
             list[float]: Vector of thermal loads for a given surface
         """
-        n_funcs = [[0 for j in range(4)] for i in range(self.no_int_nodes)]
-        p_vector = [0 for j in range(4)]
+        n_funcs: List[List[float]] = [[0 for j in range(4)] for i in range(self.no_int_nodes)]
+        p_vector: List[float] = [0 for j in range(4)]
 
         if self.sciany_z_bc[nr_boku] > 0:
             # Calculations for each surface of the element
@@ -429,12 +421,12 @@ class WektorP:
 
         return p_vector
 
-    def calculate_p_vector(self):
+    def calculate_p_vector(self) -> None:
         for i in range(4):
             for j in range(4):
                     self.p_vector[i] += self.p_side_vectors[j][i]
 
-    def print_total_vector(self):
+    def print_total_vector(self) -> None:
         print("\nTotal P Vector:")
         for value in self.p_vector:
             print(f"{value:.3f}" if isinstance(value, (float, int)) else value, end="\t")

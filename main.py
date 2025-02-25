@@ -11,29 +11,30 @@ from mes.macierz.MacierzOperacje import sum_matrices, sum_vectors
 from mes.gauss.Eliminacja import gaussian_elimination
 from mes.macierz.MacierzC import MacierzC
 from tabulate import tabulate
+from typing import Dict, List, Set
 
-def separate_data():
-    """Funkcja pomocnicza do wizualnego oddzielenia sekcji wyników"""
+def separate_data() -> None:
+    """Helper function to visually separate sections of results"""
     print("="*111)
 
 # Dictionaries and lists to store data
-data = {}          # Simulation parameters
-nodes = {}         # Nodes of the grid
-elements = []      # Elements of the grid
-node_section = False # Flag to identify the node section
-element_section = False # Flag to identify the element section
-bc_section = False # Flag to identify the boundary condition section
-bc_nodes = set()   # Set of nodes with boundary conditions
-h_matrices = []    # List of local H matrices
-hbc_matrices = []  # List of local HBC matrices
-summed_matrices = []  # List of summed H+HBC matrices
-p_vectors = []     # List of local P vectors
-c_matrices = []    # List of local C matrices
+data: Dict[str, str] = {}          # Simulation parameters
+nodes: Dict[int, Node] = {}        # Nodes of the grid
+elements: List[Element] = []       # Elements of the grid
+node_section: bool = False         # Flag to identify the node section
+element_section: bool = False      # Flag to identify the element section
+bc_section: bool = False           # Flag to identify the boundary condition section
+bc_nodes: Set[int] = set()         # Set of nodes with boundary conditions
+h_matrices: List[MatrixH] = []     # List of local H matrices
+hbc_matrices: List[MacierzHBC] = []# List of local HBC matrices
+summed_matrices: List[MatrixH] = []# List of summed H+HBC matrices
+p_vectors: List[WektorP] = []      # List of local P vectors
+c_matrices: List[MacierzC] = []    # List of local C matrices
 
 # Reading data from a file
-plik = "data/Test1_4_4.txt"
-# plik = "data/Test2_4_4_MixGrid.txt"
-# plik = "data/Test3_31_31_kwadrat.txt"
+plik: str = "data/Test1_4_4.txt"
+# plik: str = "data/Test2_4_4_MixGrid.txt"
+# plik: str = "data/Test3_31_31_kwadrat.txt"
 
 # First iteration - reading nodes and elements
 with open(plik, "r") as file:
@@ -184,12 +185,12 @@ c_glob.divide_matrix_by_dtau(global_data.simStepTime)
 c_glob.print_global_matrix()
 
 # Time simulation
-t0_vector = [global_data.initialTemp] * global_data.nodesNo
-current_time = global_data.simStepTime
+t0_vector: List[float] = [global_data.initialTemp] * global_data.nodesNo
+current_time: int = global_data.simStepTime
 
-headers = [f"Node {i+1}" for i in range(len(t0_vector))]
-table_data = []
-min_max_table_data = []
+headers: List[str] = [f"Node {i+1}" for i in range(len(t0_vector))]
+table_data: List[List[str]] = []
+min_max_table_data: List[List[str]] = []
 
 # Main simulation loop
 while current_time <= global_data.simTime:

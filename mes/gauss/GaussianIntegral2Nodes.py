@@ -1,5 +1,6 @@
 from mes.gauss.GaussFunction import functionX, functionXY
 import math
+from typing import List
 
 class GaussianIntegral2Nodes:
     """
@@ -14,10 +15,10 @@ class GaussianIntegral2Nodes:
         Nodes are symmetric with respect to the center of the interval [-1,1],
         and weights are equal to 1 for both nodes.
         """
-        self.nodes = [-(1/math.sqrt(3)), 1/math.sqrt(3)]  # Gauss nodes for n=2
-        self.weight = 1  # Weight is equal to 1 for both nodes
+        self.nodes: List[float] = [-(1/math.sqrt(3)), 1/math.sqrt(3)]  # Gauss nodes for n=2
+        self.weight: float = 1  # Weight is equal to 1 for both nodes
 
-    def Integrate1D(self):
+    def Integrate1D(self) -> float:
         """
         Performs one-dimensional integration of the function defined in functionX
         using two-point Gaussian quadrature.
@@ -25,11 +26,11 @@ class GaussianIntegral2Nodes:
         Returns:
             float: Result of one-dimensional integration
         """
-        result = functionX(self.nodes[0])*self.weight + functionX(self.nodes[1])*self.weight
+        result: float = functionX(self.nodes[0])*self.weight + functionX(self.nodes[1])*self.weight
         print(f"Integration result - 2Nodes (1D): {result}")
         return result
 
-    def Integrate2D(self):
+    def Integrate2D(self) -> float:
         """
         Performs two-dimensional integration of the function defined in functionXY
         using two-point Gaussian quadrature in both dimensions.
@@ -38,7 +39,7 @@ class GaussianIntegral2Nodes:
         Returns:
             float: Result of two-dimensional integration
         """
-        result = 0
+        result: float = 0
         for i in range(2):
             for j in range(2):
                 result += functionXY(self.nodes[i], self.nodes[j]) * self.weight * self.weight

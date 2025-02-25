@@ -4,8 +4,8 @@ class Global:
     Contains all constant physical properties and time parameters needed for calculations.
     """
     
-    def __init__(self, simTime, simStepTime, conductivity, alfa, tot, initialTemp, 
-                 density, specificHeat, nodesNo, elementsNo):
+    def __init__(self, simTime: float, simStepTime: float, conductivity: float, alfa: float, tot: float, 
+                 initialTemp: float, density: float, specificHeat: float, nodesNo: int, elementsNo: int):
         """
         Initializes the global parameters of the simulation.
         
@@ -21,18 +21,18 @@ class Global:
             nodesNo (int): Number of nodes in the mesh
             elementsNo (int): Number of elements in the mesh
         """
-        self.simTime = simTime
-        self.simStepTime = simStepTime
-        self.conductivity = conductivity
-        self.alfa = alfa
-        self.tot = tot
-        self.initialTemp = initialTemp
-        self.density = density
-        self.specificHeat = specificHeat
-        self.nodesNo = nodesNo
-        self.elementsNo = elementsNo
+        self.simTime: float = simTime
+        self.simStepTime: float = simStepTime
+        self.conductivity: float = conductivity
+        self.alfa: float = alfa
+        self.tot: float = tot
+        self.initialTemp: float = initialTemp
+        self.density: float = density
+        self.specificHeat: float = specificHeat
+        self.nodesNo: int = nodesNo
+        self.elementsNo: int = elementsNo
 
-    def print_values(self):
+    def print_values(self) -> None:
         """
         Displays all simulation global parameters.
         Helper function for debugging and verifying input data.

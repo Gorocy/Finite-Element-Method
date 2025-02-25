@@ -1,37 +1,38 @@
 from mes.gauss.GaussianIntegral import GaussianIntegral
 from mes.classes.Node import Node
+from typing import List
 
-# Funkcje obliczające pochodne funkcji kształtu względem ksi
-def n1_ksi(eta):
+# Functions calculating the derivatives of the shape functions with respect to ksi
+def n1_ksi(eta: float) -> float:
     """Derivative of the first shape function with respect to ksi"""
     return -(1 / 4) * (1 - eta)
 
-def n2_ksi(eta):
+def n2_ksi(eta: float) -> float:
     """Derivative of the second shape function with respect to ksi"""
     return (1 / 4) * (1 - eta)
 
-def n3_ksi(eta):
+def n3_ksi(eta: float) -> float:
     """Derivative of the third shape function with respect to ksi"""
     return (1 / 4) * (1 + eta)
 
-def n4_ksi(eta):
+def n4_ksi(eta: float) -> float:
     """Derivative of the fourth shape function with respect to ksi"""
     return -(1 / 4) * (1 + eta)
 
-# Funkcje obliczające pochodne funkcji kształtu względem eta
-def n1_eta(ksi):
+# Functions calculating the derivatives of the shape functions with respect to eta
+def n1_eta(ksi: float) -> float:
     """Derivative of the first shape function with respect to eta"""
     return -(1/4) * (1-ksi)
 
-def n2_eta(ksi):
+def n2_eta(ksi: float) -> float:
     """Derivative of the second shape function with respect to eta"""
     return -(1/4) * (1+ksi)
 
-def n3_eta(ksi):
+def n3_eta(ksi: float) -> float:
     """Derivative of the third shape function with respect to eta"""
     return (1/4) * (1+ksi)
 
-def n4_eta(ksi):
+def n4_eta(ksi: float) -> float:
     """Derivative of the fourth shape function with respect to eta"""
     return (1/4) * (1-ksi)
 
@@ -42,24 +43,24 @@ class UniversalElement:
     Contains definitions of shape functions and their derivatives at integration points.
     """
     
-    def __init__(self, no_int_nodes):
+    def __init__(self, no_int_nodes: int):
         """
         Initialization of the universal element.
         
         Args:
             no_int_nodes (int): Number of integration nodes in each direction
         """
-        self.no_int_nodes = no_int_nodes
-        self.temp = GaussianIntegral(no_int_nodes)
+        self.no_int_nodes: int = no_int_nodes
+        self.temp: GaussianIntegral = GaussianIntegral(no_int_nodes)
         
         # Initializing arrays of shape function derivatives
         rows, cols = (4, no_int_nodes * no_int_nodes)
-        self.ksi_derivatives = [[None for _ in range(cols)] for _ in range(rows)]
-        self.eta_derivatives = [[None for _ in range(cols)] for _ in range(rows)]
+        self.ksi_derivatives: List[List[float]] = [[None for _ in range(cols)] for _ in range(rows)]
+        self.eta_derivatives: List[List[float]] = [[None for _ in range(cols)] for _ in range(rows)]
         
         # Lists of integration points and their weights
-        self.integration_points = []
-        self.weights = []
+        self.integration_points: List[Node] = []
+        self.weights: List[Node] = []
 
         # Generating integration points and their weights
         iterations = 1
@@ -84,7 +85,7 @@ class UniversalElement:
             self.eta_derivatives[3][i] = n4_eta(self.integration_points[i].x)
             self.ksi_derivatives[3][i] = n4_ksi(self.integration_points[i].y)
 
-    def print_ksi_array(self):
+    def print_ksi_array(self) -> None:
         """
         Displays the array of derivatives of the shape functions with respect to ksi
         for all integration points.
@@ -96,7 +97,7 @@ class UniversalElement:
                 print(f"{value:.6f}", end="\t")
             print()
 
-    def print_eta_array(self):
+    def print_eta_array(self) -> None:
         """
         Displays the array of derivatives of the shape functions with respect to eta
         for all integration points.
@@ -108,7 +109,7 @@ class UniversalElement:
                 print(f"{value:.6f}", end="\t")
             print()
 
-    def print_integration_points(self):
+    def print_integration_points(self) -> None:
         """
         Displays the coordinates of all integration points in the universal element.
         """

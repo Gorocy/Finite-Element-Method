@@ -4,7 +4,7 @@ class Node:
     Stores information about the node's position and boundary conditions.
     """
     
-    def __init__(self, node_id, x, y, bc = 0):
+    def __init__(self, node_id: int, x: float, y: float, bc: int = 0):
         """
         Initializes the node.
         
@@ -16,12 +16,12 @@ class Node:
                               0 means no boundary condition,
                               value > 0 means node with boundary condition
         """
-        self.node_id = node_id
-        self.x = x
-        self.y = y
-        self.BC = bc  # Boundary Condition
+        self.node_id: int = node_id
+        self.x: float = x
+        self.y: float = y
+        self.BC: int = bc  # Boundary Condition
 
-    def printNode(self):
+    def printNode(self) -> None:
         """
         Displays information about the node, including its identifier, 
         coordinates, and information about the boundary condition.

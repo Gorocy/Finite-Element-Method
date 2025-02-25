@@ -1,4 +1,5 @@
 from mes.classes.Node import Node
+from typing import List
 
 class Element:
     """
@@ -6,17 +7,17 @@ class Element:
     Stores the element ID and a list of connected nodes.
     """
     
-    def __init__(self, id):
+    def __init__(self, id: int):
         """
         Initializes a new element.
         
         Args:
             id: Unique identifier of the element
         """
-        self.id = id
-        self.connected_nodes = []  # List storing nodes connected to the element
+        self.id: int = id
+        self.connected_nodes: List[Node] = []  # List storing nodes connected to the element
 
-    def addNode(self, node: Node):
+    def addNode(self, node: Node) -> None:
         """
         Adds a node to the list of connected nodes.
         
@@ -25,7 +26,7 @@ class Element:
         """
         self.connected_nodes.append(node)
 
-    def printElement(self):
+    def printElement(self) -> None:
         """
         Displays information about the element, including its ID and the coordinates of all connected nodes.
         """

@@ -1,6 +1,6 @@
 import math
 
-def functionX(x):
+def functionX(x: float) -> float:
     """
     One-dimensional function used in Gaussian integration calculations.
     Represents a second-degree polynomial.
@@ -14,7 +14,7 @@ def functionX(x):
     return 5 * x ** 2 + 3 * x + 6
 
 
-def functionXY(x, y):
+def functionXY(x: float, y: float) -> float:
     """
     Two-dimensional function used in Gaussian integration calculations.
     Represents a second-degree polynomial with respect to both variables.

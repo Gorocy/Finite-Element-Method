@@ -1,5 +1,6 @@
 from mes.gauss.GaussFunction import functionX, functionXY
 import math
+from typing import List
 
 class GaussianIntegral:
     """
@@ -7,7 +8,7 @@ class GaussianIntegral:
     Handles one- and two-dimensional integration for different numbers of nodes (1-5).
     """
     
-    def __init__(self, no_nodes):
+    def __init__(self, no_nodes: int):
         """
         Initialization of the Gaussian quadrature for a given number of nodes.
         
@@ -17,7 +18,9 @@ class GaussianIntegral:
         Raises:
             ValueError: When the number of nodes is not supported (outside the range 1-5)
         """
-        self.no_nodes = no_nodes
+        self.no_nodes: int = no_nodes
+        self.nodes: List[float] = []
+        self.weights: List[float] = []
 
         # Definitions of nodes and weights for different numbers of integration points
         if no_nodes == 1:
@@ -61,20 +64,20 @@ class GaussianIntegral:
         else:
             raise ValueError("Unsupported number of nodes.")
 
-    def integrate1d(self):
+    def integrate1d(self) -> float:
         """
         Performs one-dimensional integration of the function defined in functionX.
         
         Returns:
             float: Result of one-dimensional integration
         """
-        result = 0
+        result: float = 0
         for i in range(self.no_nodes):
             result += functionX(self.nodes[i]) * self.weights[i]
         print(f"Integration result - {self.no_nodes} Nodes (1D): {result}")
         return result
 
-    def integrate2d(self):
+    def integrate2d(self) -> float:
         """
         Performs two-dimensional integration of the function defined in functionXY.
         Uses the tensor product of nodes and weights for both dimensions.
@@ -82,7 +85,7 @@ class GaussianIntegral:
         Returns:
             float: Result of two-dimensional integration
         """
-        result = 0
+        result: float = 0
         for i in range(self.no_nodes):
             for j in range(self.no_nodes):
                 result += functionXY(self.nodes[i], self.nodes[j]) * self.weights[i] * self.weights[j]

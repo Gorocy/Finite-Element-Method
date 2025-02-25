@@ -1,4 +1,6 @@
-def gaussian_elimination(matrix_c_h_summed, vectors_summed):
+from typing import List
+
+def gaussian_elimination(matrix_c_h_summed: List[List[float]], vectors_summed: List[float]) -> List[float]:
     """
     Implementation of the Gaussian elimination method to solve a system of linear equations.
     Used to calculate the temperature distribution in the nodes of the MES mesh.
